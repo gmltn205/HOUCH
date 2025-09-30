@@ -1,0 +1,189 @@
+/* 기본 스타일 */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh;
+    background-color: #f5f5f5;
+}
+
+.sidebar {
+    width: 65px;
+    background-color: #2c3e50;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 1070px;
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar ul li {
+    margin: 20px 0;
+}
+
+.sidebar ul li a {
+    text-decoration: none;
+    color: white;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+}
+
+.sidebar ul li a i {
+    font-size: 24px;
+    color: white;
+}
+
+/* 본문 */
+.container {
+    flex: 1;
+    padding: 40px;
+    background-color: white;
+    border-radius: 8px;
+    margin: auto;
+    max-width: 600px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top: 70.336px;
+}
+
+h2 {
+    font-size: 24px;
+    color: #333;
+    text-align: center;
+}
+
+p {
+    text-align: center;
+    color: #666;
+    font-size: 16px;
+}
+
+/* 폼 스타일 */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    gap: 20px; /* 세대원 수와 자녀 수 간격 */
+    justify-content: space-between;
+}
+
+label {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+input[type="number"] {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    width: 45%; /* 세대원 수와 자녀 수 입력란의 너비를 50%로 설정 */
+}
+
+/* 체크박스 그룹 */
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap; /* 항목들이 넘칠 경우 줄 바꿈 */
+    gap: 15px;
+}
+
+/* 체크박스 컨테이너 */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+}
+
+/* 체크박스 상태 숨기기 */
+.checkbox-container input[type="radio"] {
+    display: none;
+}
+
+/* 네모 박스 스타일 */
+.checkbox-container .box {
+    display: inline-block;
+    padding: 10px 20px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;  /* 글자 크기 약간 조정 */
+    transition: background-color 0.2s, border-color 0.2s; /* 트랜지션 추가 */
+}
+
+/* 선택된 상태의 스타일 */
+.checkbox-container input[type="radio"]:checked + .box {
+    background-color: #0056b3;
+    color: white;
+    border-color: #0056b3;
+}
+
+/* 호버 시 스타일 */
+.checkbox-container .box:hover {
+    background-color: #f0f0f0;
+    border-color: #888; /* 호버 시 경계선 색상 */
+}
+
+/* 라벨 텍스트 정렬 */
+.checkbox-container span {
+    margin-left: 8px;  /* 텍스트와 네모 박스 사이 간격 */
+}
+
+.next-button {
+    display: inline-block;
+    padding: 12px 20px; /* 필요에 따라 조정 */
+    background-color: #0b569f;
+    color: white;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 16px;
+    transition: background-color 0.3s ease-in-out;
+    width: 27.688px;
+    margin-left: 270px;
+    text-decoration: none;
+}
+
+.next-button:hover {
+    background-color: #ccc; /* 호버 시 배경색 */
+}
+
+/* '라이프 스타일' 제목 위에만 회색 선 추가 */
+.lifestyle {
+    border-top: 1px solid #d3d3d3; /* 옅은 회색 선 */
+    padding-top: 60px; /* 선과 텍스트 사이의 간격 */
+}
+
+/* 반응형 스타일 */
+@media screen and (max-width: 768px) {
+    .container {
+        margin-left: 0;
+        width: 100%;
+        padding: 20px;
+    }
+
+    .sidebar {
+        width: 200px;
+    }
+
+    .slider-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .slider {
+        width: 100%;
+    }
+}

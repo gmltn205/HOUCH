@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>신청 현황 - HOUCH!</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/calendar.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+<div class="sidebar">
+    <ul>
+        <li><a href="/" aria-label="홈"><i class="fa-solid fa-house"></i></a></li>
+        <li><a href="/recommend" aria-label="사용자 맞춤 임대 추천 서비스"><i class="fa-solid fa-check-to-slot"></i></a></li>
+        <li><a href="/houses" aria-label="공공임대 경쟁률 랭킹"><i class="fa-solid fa-ranking-star"></i></a></li>
+        <li><a href="/map" aria-label="지도로 찾아보기"><i class="fa-solid fa-map-location-dot"></i></a></li>
+        <li><a href="/applyhome/gyeonggi-rentals" aria-label="정책 및 보조금"><i class="fa-solid fa-hand-holding-dollar"></i></a></li>
+        <li><a href="/chatbot" aria-label="챗봇"><i class="fa-brands fa-bots"></i></a></li>
+        <li><a href="/mypage" aria-label="마이페이지"><i class="fa-solid fa-user"></i></a></li>
+    </ul>
+</div>
+
+<div class="main-content">
+    <div class="calendar-container">
+        <div class="calendar-header">
+            <button id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+            <h2 id="currentMonth">2024년 2월</h2>
+            <button id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+        </div>
+
+        <div class="calendar-grid">
+            <div class="weekday">일</div>
+            <div class="weekday">월</div>
+            <div class="weekday">화</div>
+            <div class="weekday">수</div>
+            <div class="weekday">목</div>
+            <div class="weekday">금</div>
+            <div class="weekday">토</div>
+        </div>
+    </div>
+
+    <div class="applications-list">
+        <h3><i class="fas fa-list-alt"></i> 신청 일정</h3>
+        <div class="application-items" th:if="${not #lists.isEmpty(applications)}">
+            <div th:each="app : ${applications}" class="application-item">
+                <div class="property-info">
+                    <h4><i class="fas fa-building"></i> <span th:text="${app.houseName}">청약 주택명</span></h4>
+                    <p><i class="fas fa-map-marker-alt"></i> <span th:text="${app.address}">주소</span></p>
+                    <div class="date-info">
+                        <i class="far fa-calendar-alt"></i>
+                        <span>청약접수: </span>
+                        <span th:text="|${app.subscriptionStartDate} ~ ${app.subscriptionEndDate}|">접수기간</span>
+                    </div>
+                    <div class="date-info">
+                        <i class="fas fa-bullhorn"></i>
+                        <span>당첨자 발표: </span>
+                        <span th:text="${app.winnerAnnouncementDate}">발표일</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:if="${#lists.isEmpty(applications)}" class="no-applications">
+            <p><i class="fas fa-info-circle"></i> 아직 신청한 청약 매물이 없습니다.</p>
+            <a href="/applyhome/gyeonggi-rentals" class="btn btn-primary">
+                <i class="fas fa-search"></i> 청약 매물 둘러보기
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- 애플리케이션 데이터를 JavaScript에서 사용하기 위한 hidden input -->
+<script th:inline="javascript">
+    const applicationsData = /*[[${applications}]]*/ [];
+    console.log('청약 데이터:', applicationsData); // 데이터가 제대로 전달되는지 확인
+</script>
+<script src="/js/application-status.js"></script>
+</body>
+</html>

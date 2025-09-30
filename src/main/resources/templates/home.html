@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메인 페이지</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+<div class="sidebar">
+    <ul>
+        <li><a href="/" aria-label="홈"><i class="fa-solid fa-house"></i></a></li>
+        <li><a href="/recommend" aria-label="사용자 맞춤 임대 추천 서비스"><i class="fa-solid fa-check-to-slot"></i></a></li>
+        <li><a href="/houses" aria-label="공공임대 경쟁률 랭킹"><i class="fa-solid fa-ranking-star"></i></a></li>
+        <li><a href="/map" aria-label="지도로 찾아보기"><i class="fa-solid fa-map-location-dot"></i></a></li>
+        <li><a href="/applyhome/gyeonggi-rentals" aria-label="정책 및 보조금"><i class="fa-solid fa-hand-holding-dollar"></i></a></li>
+        <li><a href="/chatbot" aria-label="챗봇"><i class="fa-brands fa-bots"></i></a></li>
+        <li><a href="/mypage" aria-label="마이페이지"><i class="fa-solid fa-user"></i></a></li>
+    </ul>
+</div>
+
+<div class="main-content">
+    <header>
+        <!-- 상단 바(Top Bar) -->
+        <div class="top-bar">
+            <div class="logo">HOUCH!</div>
+            <!-- home.html의 user-menu 부분 수정 -->
+            <div class="user-menu">
+                <div id="loggedOutMenu">
+                    <button class="login-btn" onclick="location.href='/login'">로그인/회원가입</button>
+                </div>
+                <div id="loggedInMenu" style="display: none;">
+                    <button class="mypage-btn" onclick="location.href='/mypage'">마이페이지</button>
+                    <button class="logout-btn" onclick="logout()">로그아웃</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 검색창 섹션 -->
+        <div class="search-bar-container">
+            <input type="text" id="searchInput" placeholder="공공임대 또는 정책지원사업 검색..." class="search-bar">
+            <button id="searchButton" class="search-button">
+                <i class="fa-solid fa-search"></i>
+            </button>
+            <div id="searchResults" class="search-results"></div>
+        </div>
+    </header>
+    <!-- for heesooo -->
+    <section class="banner">
+        <div class="policy-slider">
+            <div class="policy-slides-container">
+                <div class="policy-slides">
+                    <!-- 정책 뉴스가 여기에 동적으로 추가됩니다 -->
+                </div>
+            </div>
+            <button class="nav-button prev">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <button class="nav-button next">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+    </section>
+
+    <section class="features">
+        <section class="features-top">
+            <!-- 강조할 상단 3개 박스 -->
+            <div class="feature-box">
+                <h3 class="feature-title">거기 어때?</h3>
+                <p class="feature-text">
+                    단지별 거주자들의 생생한 리얼후기!
+                    입지 환경 분석까지!
+                </p>
+            </div>
+            <div class="feature-box" onclick="location.href='/recommend'">
+                <h3 class="feature-title">나에게 맞는 집 찾기</h3>
+                <p class="feature-text">
+                    내가 살 수 있는 공공임대 찾기!
+                    자격요건에 맞는 신청가능 매물 추천!
+                </p>
+            </div>
+            <div class="feature-box" onclick="location.href='/applyhome/gyeonggi-rentals'">
+                <h3 class="feature-title">경기권 청약 매물</h3>
+                <p class="feature-text">
+                    지금 신청 가능한 청약 매물 살펴보기!
+                </p>
+            </div>
+        </section>
+
+        <section class="features-bottom">
+            <!-- 하단에 배치할 나머지 4개 박스 -->
+            <div class="feature-box">
+                <h3 class="feature-title">HOUCH INSITE</h3>
+                <!--<p class="feature-text">-->
+                <!--HOUCH가 알려주는 특별한 정보!-->
+                <!--청약꿀팁, 1순위 쟁취 노하우, 신청가이드</p> -->
+            </div>
+            <div class="feature-box" onclick="location.href='/map'">
+                <h3 class="feature-title">지도</h3>
+            </div>
+            <div class="feature-box" onclick="location.href='/mypage'">
+                <h3 class="feature-title">찜한매물</h3>
+            </div>
+            <div class="feature-box" onclick="location.href='/community'">
+                <h3 class="feature-title">커뮤니티</h3>
+            </div>
+        </section>
+    </section>
+
+    <!-- 경쟁률 섹션 -->
+    <section class="competition">
+        <div class="competition-header">
+            <h3 class="competition-title">실시간 인기 매물</h3>
+            <a href="/houses" class="view-more-link">
+                더 많은 매물 보기
+                <i class="fa-solid fa-chevron-right"></i>
+            </a>
+        </div>
+        <div class="competition-grid">
+            <!-- th:each로 상위 5개 매물을 반복 -->
+            <div th:each="house, stat : ${topHouses}"
+                 class="competition-item"
+                 th:onclick="'location.href=\'/houses/' + ${house.id} + '\''"
+                 style="cursor: pointer;">
+                <div style="position: relative;">
+                    <img th:src="@{/apart/apart} + ${stat.count} + '.jpg'" alt="평면도" class="competition-image">
+                    <span class="competition-rank" th:text="${stat.count + '위'}">1위</span>
+                </div>
+                <div class="competition-info">
+                    <div class="competition-price">
+                        <span th:text="|월 ${#numbers.formatInteger(house.monthlyRent, 0, 'COMMA')}원|"></span>
+                        <span th:text="|보증금 ${#numbers.formatInteger(house.deposit, 0, 'COMMA')}원|"></span>
+                    </div>
+                    <div class="competition-location" th:text="|소재지: ${house.city} ${house.district}|"></div>
+                    <div class="competition-area" th:text="|면적: ${house.exclusiveArea}m²|"></div>
+                    <div class="view-count">
+                        <i class="fa-solid fa-eye"></i>
+                        <span th:text="${house.viewCount}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+<script src="/js/script.js"></script>
+</body>
+</html>

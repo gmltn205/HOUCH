@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>지도로 찾아보기</title>
+    <!-- 기존 스타일시트 연결 -->
+    <link rel="stylesheet" href="/css/styles.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="/css/map.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- 지도 페이지 전용 스타일 -->
+    <style>
+        .main-content {
+            padding: 0; /* 기존 패딩 제거 */
+        }
+
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: calc(100vh - 60px); /* 상단바 높이만큼 제외 */
+            display: flex;
+        }
+
+        .property-list-panel {
+            width: 350px;
+            background: white;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            z-index: 1;
+        }
+
+        #map {
+            flex: 1;
+            height: 100%;
+            min-height: 400px;
+            background-color: #f8f9fa; /* 지도 로드 전 배경색 */
+        }
+    </style>
+</head>
+<body>
+<!-- 사이드바 -->
+<div class="sidebar">
+    <ul>
+        <li><a href="/" aria-label="홈"><i class="fa-solid fa-house"></i></a></li>
+        <li><a href="/recommend" aria-label="사용자 맞춤 임대 추천 서비스"><i class="fa-solid fa-check-to-slot"></i></a></li>
+        <li><a href="/houses" aria-label="공공임대 경쟁률 랭킹"><i class="fa-solid fa-ranking-star"></i></a></li>
+        <li><a href="/map" aria-label="지도로 찾아보기"><i class="fa-solid fa-map-location-dot"></i></a></li>
+        <li><a href="/applyhome/gyeonggi-rentals" aria-label="정책 및 보조금"><i class="fa-solid fa-hand-holding-dollar"></i></a></li>
+        <li><a href="/chatbot" aria-label="챗봇"><i class="fa-brands fa-bots"></i></a></li>
+        <li><a href="/mypage" aria-label="마이페이지"><i class="fa-solid fa-user"></i></a></li>
+    </ul>
+</div>
+
+<!-- 메인 콘텐츠 -->
+<div class="main-content">
+    <header>
+        <div class="top-bar">
+            <div class="logo">HOUCH!</div>
+            <div class="user-menu">
+                <div id="loggedOutMenu">
+                    <button class="login-btn" onclick="location.href='/login'">로그인/회원가입</button>
+                </div>
+                <div id="loggedInMenu" style="display: none;">
+                    <button class="mypage-btn" onclick="location.href='/mypage'">마이페이지</button>
+                    <button class="logout-btn" onclick="logout()">로그아웃</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="map-container">
+        <!-- 좌측 패널 -->
+        <div class="property-list-panel">
+            <!-- 검색 영역 추가 -->
+            <div class="search-section">
+                <div class="search-box">
+                    <input type="text" id="addressSearch" placeholder="주소를 입력하세요">
+                    <button id="searchBtn">
+                        <i class="fa-solid fa-search"></i>
+                    </button>
+                </div>
+
+                <!-- 필터 영역 -->
+                <div class="filter-section">
+                    <div class="filter-item">
+                        <label>보증금</label>
+                        <select id="depositFilter">
+                            <option value="all">전체</option>
+                            <option value="0-1000">1천만원 이하</option>
+                            <option value="1000-3000">1천만원-3천만원</option>
+                            <option value="3000-5000">3천만원-5천만원</option>
+                            <option value="5000">5천만원 이상</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label>월세</label>
+                        <select id="monthlyFilter">
+                            <option value="all">전체</option>
+                            <option value="0-30">30만원 이하</option>
+                            <option value="30-50">30만원-50만원</option>
+                            <option value="50-100">50만원-100만원</option>
+                            <option value="100">100만원 이상</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 검색 결과 목록 -->
+            <div id="searchResults" class="search-results">
+                <!-- 검색 결과가 여기에 표시됩니다 -->
+            </div>
+
+            <!-- 매물 목록 -->
+            <div class="panel-header">
+                <h2>Where's Houch!!</h2>
+            </div>
+            <div id="propertyList">
+                <!-- 매물 목록이 여기에 표시됩니다 -->
+            </div>
+        </div>
+
+        <div id="map"></div>
+    </div>
+</div>
+
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=00921b438db2e52ed67bc7a54ab94803&libraries=services"></script>
+<script src="/js/map.js"></script>
+</body>
+</html>

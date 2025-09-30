@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관심 매물 - HOUCH!</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/mypage.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .favorites-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .favorite-item {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: box-shadow 0.3s ease;
+        }
+        .favorite-item:hover {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .favorite-details {
+            padding: 16px;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            gap: 10px;
+        }
+        .pagination-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .pagination-btn.active {
+            background-color: #2575fc;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<div class="sidebar">
+    <ul>
+        <li><a href="/" aria-label="홈"><i class="fa-solid fa-house"></i></a></li>
+        <li><a href="/recommend" aria-label="사용자 맞춤 임대 추천 서비스"><i class="fa-solid fa-check-to-slot"></i></a></li>
+        <li><a href="/houses" aria-label="공공임대 경쟁률 랭킹"><i class="fa-solid fa-ranking-star"></i></a></li>
+        <li><a href="/map" aria-label="지도로 찾아보기"><i class="fa-solid fa-map-location-dot"></i></a></li>
+        <li><a href=/applyhome/gyeonggi-rentals aria-label="정책 및 보조금"><i class="fa-solid fa-hand-holding-dollar"></i></a></li>
+        <li><a href="/chatbot" aria-label="챗봇"><i class="fa-brands fa-bots"></i></a></li>
+        <li><a href="/mypage" aria-label="마이페이지"><i class="fa-solid fa-user"></i></a></li>
+    </ul>
+</div>
+
+<div class="main-content">
+    <header>
+        <div class="top-bar">
+            <div class="logo">HOUCH!</div>
+            <!-- 기존 top-bar 내용 -->
+        </div>
+    </header>
+
+    <div class="content-container">
+        <h1>관심 매물</h1>
+
+        <div class="favorites-list">
+            <div th:each="favorite : ${favorites.content}" class="favorite-item">
+                <a th:href="@{/houses/{id}(id=${favorite.houseInfo.id})}">
+                    <div class="property-image" style="background-color: #e0e0e0; height: 200px;"></div>
+                    <div class="favorite-details">
+                        <h3 th:text="${favorite.houseInfo.complexName}">래미안 아파트 1단지</h3>
+                        <p class="property-location" th:text="${favorite.houseInfo.roadAddress}">서울시 강남구</p>
+                        <div class="pricing">
+                            <p class="property-price">
+                                <span th:text="|보증금 ${#numbers.formatInteger(favorite.houseInfo.deposit, 0, 'COMMA')}원|">보증금 5,800만원</span>
+                                <span th:text="|월임대료 ${#numbers.formatInteger(favorite.houseInfo.monthlyRent, 0, 'COMMA')}원|">월임대료 60만원</span>
+                            </p>
+                        </div>
+                        <div class="favorite-meta">
+                            <span th:text="${#temporals.format(favorite.createdAt, 'yyyy-MM-dd')}">찜한 날짜</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- 페이지네이션 -->
+        <div class="pagination" th:if="${favorites.totalPages > 1}">
+            <button th:if="${favorites.hasPrevious()}"
+                    th:onclick="|window.location.href='?page=${currentPage - 1}'|"
+                    class="pagination-btn">이전</button>
+
+            <th:block th:each="pageNum : ${#numbers.sequence(0, favorites.totalPages - 1)}">
+                <button th:onclick="|window.location.href='?page=${pageNum}'|"
+                        th:classappend="${pageNum == currentPage} ? 'active' : ''"
+                        class="pagination-btn">
+                    [[${pageNum + 1}]]
+                </button>
+            </th:block>
+
+            <button th:if="${favorites.hasNext()}"
+                    th:onclick="|window.location.href='?page=${currentPage + 1}'|"
+                    class="pagination-btn">다음</button>
+        </div>
+
+        <!-- 찜한 매물이 없는 경우 -->
+        <div th:if="${favorites.content.isEmpty()}" class="no-favorites">
+            <p>아직 찜한 매물이 없습니다.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleFavorite(houseId) {
+        fetch(`/api/favorites/${houseId}`, {
+            method: 'POST',
+            credentials: 'include'
+        })
+            .then(response => {
+                if (response.ok) {
+                    // 페이지 새로고침 또는 UI 업데이트
+                    window.location.reload();
+                } else {
+                    alert('로그인이 필요합니다.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('오류가 발생했습니다.');
+            });
+    }
+</script>
+</body>
+</html>

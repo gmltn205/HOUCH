@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사용자 정보 입력</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/first-login-form.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+<div class="main-content">
+    <div class="container">
+        <form id="userProfileForm" class="profile-form">
+            <h2><i class="fa-solid fa-user-pen"></i> 추가 정보를 입력해주세요</h2>
+
+            <div class="form-group">
+                <label><i class="fa-solid fa-map-location-dot"></i> 선호 지역 (최대 3개)</label>
+                <div class="region-notice">* 경기도 내 선호하는 지역을 최대 3개까지 선택해주세요</div>
+                <div class="region-grid" id="regionSelection">
+                    <!-- 지역은 JavaScript로 동적 생성됩니다 -->
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label><i class="fa-solid fa-venus-mars"></i> 성별</label>
+                    <select name="gender" required>
+                        <option value="">선택해주세요</option>
+                        <option value="MALE">남성</option>
+                        <option value="FEMALE">여성</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fa-solid fa-cake-candles"></i> 연령대</label>
+                    <select name="ageGroup" required>
+                        <option value="">선택해주세요</option>
+                        <option value="20S">20대</option>
+                        <option value="30S">30대</option>
+                        <option value="40S">40대</option>
+                        <option value="50S">50대</option>
+                        <option value="60S">60대 이상</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fa-solid fa-sack-dollar"></i> 연봉 (만원)</label>
+                <input type="number" name="annualIncome" required min="0" placeholder="예: 3000">
+            </div>
+
+            <div class="form-group">
+                <label><i class="fa-solid fa-user-tag"></i> 개인 특성</label>
+                <select name="personalCharacteristic" required>
+                    <option value="">선택해주세요</option>
+                    <option value="WORKER">근로자</option>
+                    <option value="FARMER">농수산업</option>
+                    <option value="GRADUATE">대학원생</option>
+                    <option value="JOBSEEKER">실직/구직자</option>
+                    <option value="PREGNANT">임신/출산</option>
+                    <option value="STUDENT">초중고생</option>
+                    <option value="NONE">해당없음</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fa-solid fa-house-user"></i> 가구 특성</label>
+                <select name="householdCharacteristic" required>
+                    <option value="">선택해주세요</option>
+                    <option value="SINGLE">1인가구</option>
+                    <option value="MULTICULTURAL">다문화가정</option>
+                    <option value="MANY_CHILDREN">다자녀가구</option>
+                    <option value="NO_HOUSE">무주택세대</option>
+                    <option value="NORTH_KOREAN">북한이탈주민</option>
+                    <option value="NEW_MEMBER">신규전입</option>
+                    <option value="SINGLE_PARENT">한부모/조손</option>
+                </select>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                <i class="fa-solid fa-check"></i> 저장하기
+            </button>
+        </form>
+    </div>
+</div>
+<script src="/js/first-login-form.js"></script>
+</body>
+</html>

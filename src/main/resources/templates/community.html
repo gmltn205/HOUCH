@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>커뮤니티 - HOUCH!</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/community.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+<div class="sidebar">
+    <ul>
+        <li><a href="/" aria-label="홈"><i class="fa-solid fa-house"></i></a></li>
+        <li><a href="/selfCheck" aria-label="사용자 맞춤 임대 추천 서비스"><i class="fa-solid fa-check-to-slot"></i></a></li>
+        <li><a href="/houses" aria-label="공공임대 경쟁률 랭킹"><i class="fa-solid fa-ranking-star"></i></a></li>
+        <li><a href="/map" aria-label="지도로 찾아보기"><i class="fa-solid fa-map-location-dot"></i></a></li>
+        <li><a href="/applyhome/gyeonggi-rentals" aria-label="정책 및 보조금"><i class="fa-solid fa-hand-holding-dollar"></i></a></li>
+        <li><a href="/chatbot" aria-label="챗봇"><i class="fa-brands fa-bots"></i></a></li>
+        <li><a href="/mypage" aria-label="마이페이지"><i class="fa-solid fa-user"></i></a></li>
+    </ul>
+</div>
+
+<div class="main-content">
+    <header>
+        <div class="top-bar">
+            <div class="logo">HOUCH!</div>
+            <div class="user-menu">
+                <div id="loggedOutMenu">
+                    <button class="login-btn" onclick="location.href='/login'">로그인/회원가입</button>
+                </div>
+                <div id="loggedInMenu" style="display: none;">
+                    <button class="mypage-btn" onclick="location.href='/mypage'">마이페이지</button>
+                    <button class="logout-btn" onclick="logout()">로그아웃</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="community-container">
+        <!-- 상단 섹션 -->
+        <div class="community-header">
+            <h1>신혼부부 커뮤니티</h1>
+            <button class="write-btn">
+                <i class="fa-solid fa-pen"></i> 글쓰기
+            </button>
+        </div>
+
+        <!-- 카테고리 탭 -->
+        <div class="category-tabs">
+            <button class="tab-item active">전체</button>
+            <button class="tab-item">정책질문</button>
+            <button class="tab-item">부동산정보</button>
+            <button class="tab-item">청약후기</button>
+            <button class="tab-item">인테리어</button>
+        </div>
+
+        <!-- 검색 섹션 -->
+        <div class="search-section">
+            <div class="search-bar-wrapper">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" placeholder="관심있는 내용을 검색해보세요" class="search-input">
+            </div>
+            <select class="sort-select">
+                <option value="latest">최신순</option>
+                <option value="popular">인기순</option>
+                <option value="views">조회순</option>
+            </select>
+        </div>
+
+        <!-- 게시글 목록 -->
+        <div class="post-list">
+            <!-- 게시글 아이템 -->
+            <div class="post-item">
+                <div class="post-main">
+                    <div class="post-header">
+                        <span class="post-category">정책질문</span>
+                        <span class="post-time">2시간 전</span>
+                    </div>
+                    <h3 class="post-title">신혼부부 전세자금 대출 관련 질문이요</h3>
+                    <p class="post-content">안녕하세요, 전세자금 대출 관련해서 질문이 있습니다. 현재 남편과 저 둘 다 직장인인데...</p>
+                    <div class="post-stats">
+                        <span><i class="fa-regular fa-comment"></i> 12</span>
+                        <span><i class="fa-regular fa-thumbs-up"></i> 34</span>
+                        <span><i class="fa-regular fa-eye"></i> 789</span>
+                    </div>
+                </div>
+                <div class="post-thumbnail">
+                    <div class="thumbnail-placeholder"></div>
+                </div>
+            </div>
+            <!-- 추가 게시글 아이템들 반복 -->
+        </div>
+
+        <!-- 페이지네이션 -->
+        <div class="pagination">
+            <button class="page-btn"><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn">4</button>
+            <button class="page-btn">5</button>
+            <button class="page-btn"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </div>
+</div>
+
+<script src="/js/community.js"></script>
+</body>
+</html>

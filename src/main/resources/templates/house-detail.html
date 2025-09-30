@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>매물 상세정보 - HOUCH!</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/house-detail.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+<div class="sidebar">
+    <ul>
+        <li><a href="/" aria-label="홈"><i class="fa-solid fa-house"></i></a></li>
+        <li><a href="/recommend" aria-label="사용자 맞춤 임대 추천 서비스"><i class="fa-solid fa-check-to-slot"></i></a></li>
+        <li><a href="/houses" aria-label="공공임대 경쟁률 랭킹"><i class="fa-solid fa-ranking-star"></i></a></li>
+        <li><a href="/map" aria-label="지도로 찾아보기"><i class="fa-solid fa-map-location-dot"></i></a></li>
+        <li><a href="/applyhome/gyeonggi-rentals" aria-label="정책 및 보조금"><i class="fa-solid fa-hand-holding-dollar"></i></a></li>
+        <li><a href="/chatbot" aria-label="챗봇"><i class="fa-brands fa-bots"></i></a></li>
+        <li><a href="/mypage" aria-label="마이페이지"><i class="fa-solid fa-user"></i></a></li>
+    </ul>
+</div>
+
+<div class="main-content">
+    <header>
+        <div class="top-bar">
+            <div class="logo">HOUCH!</div>
+            <!-- 기존 top-bar 내용 -->
+        </div>
+    </header>
+
+    <div class="detail-container">
+        <div class="property-header">
+            <h1 th:text="${house.complexName}">경희궁자이(론의문1)</h1>
+            <div class="property-type" th:text="${house.houseType}">아파트</div>
+            <button class="favorite-toggle-btn" th:classappend="${isFavorite} ? 'favorited' : ''"
+                    onclick="toggleFavorite(/*[[${house.id}]]*/)">
+                <i class="fa-solid fa-heart"></i>
+            </button>
+        </div>
+
+        <div class="pricing-info">
+            <div class="price-item">
+                <div class="price-label">임대보증금</div>
+                <div class="price-value" th:text="${#numbers.formatInteger(house.deposit, 0, 'COMMA') + '원'}">171,300,000원</div>
+            </div>
+            <div class="price-item">
+                <div class="price-label">월임대료</div>
+                <div class="price-value" th:text="${#numbers.formatInteger(house.monthlyRent, 0, 'COMMA') + '원'}">600,000원</div>
+            </div>
+        </div>
+
+        <div class="property-details">
+            <h2 class="section-title">상세 정보</h2>
+            <div class="details-grid">
+                <div class="detail-item">
+                    <span class="detail-label">위치</span>
+                    <span class="detail-value" th:text="${house.roadAddress}">서울특별시 종로구 송월길 130</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">전용면적</span>
+                    <span class="detail-value" th:text="${house.exclusiveArea + 'm²'}">39.0561m²</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">공용면적</span>
+                    <span class="detail-value" th:text="${house.commonArea + 'm²'}">19.6373m²</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">난방방식</span>
+                    <span class="detail-value" th:text="${house.heatingType}">개별난방</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">승강기</span>
+                    <span class="detail-value" th:text="${house.hasElevator == 'Y' ? '있음' : '없음'}">없음</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">건물형태</span>
+                    <span class="detail-value" th:text="${house.buildingType}">복도식</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="property-location">
+            <h2 class="section-title">위치 정보</h2>
+            <div id="map"></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=00921b438db2e52ed67bc7a54ab94803&libraries=services"></script>
+<script th:inline="javascript">
+    // 카카오맵 초기화
+    var latitude = [[${house.latitude}]];
+    var longitude = [[${house.longitude}]];
+    var complexName = [[${house.complexName}]];
+
+    var container = document.getElementById('map');
+    var options = {
+        center: new kakao.maps.LatLng(latitude, longitude),
+        level: 3
+    };
+    var map = new kakao.maps.Map(container, options);
+
+    // 마커 생성
+    var marker = new kakao.maps.Marker({
+        position: new kakao.maps.LatLng(latitude, longitude),
+        map: map
+    });
+
+    // 인포윈도우 생성
+    var infowindow = new kakao.maps.InfoWindow({
+        content: '<div style="padding:5px;">' + complexName + '</div>'
+    });
+    infowindow.open(map, marker);
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const favoriteBtn = document.querySelector('.favorite-toggle-btn');
+        if (favoriteBtn) {
+            // 서버에서 전달된 찜 상태 확인
+            const isFavorited = /*[[${isFavorite}]]*/ false;
+
+            if (isFavorited) {
+                favoriteBtn.classList.add('favorited');
+            }
+
+            favoriteBtn.addEventListener('click', function() {
+                toggleFavorite(/*[[${house.id}]]*/);
+            });
+        }
+    });
+
+    // 찜하기 기능 스크립트
+    function toggleFavorite(houseId) {
+        fetch(`/api/favorites/house/${houseId}`, {
+            method: 'POST',
+            credentials: 'include'
+        })
+            .then(response => {
+                if (response.status === 401) {
+                    throw new Error('로그인이 필요합니다.');
+                }
+                return response.json();
+            })
+            .then(isFavorited => {
+                const favoriteBtn = document.querySelector('.favorite-toggle-btn');
+                if (favoriteBtn) {
+                    if (isFavorited) {
+                        favoriteBtn.classList.add('favorited');
+                    } else {
+                        favoriteBtn.classList.remove('favorited');
+                    }
+                }
+            })
+            .catch(error => {
+                alert(error.message);
+            });
+    }
+</script>
+</body>
+</html>

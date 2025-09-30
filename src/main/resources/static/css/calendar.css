@@ -1,0 +1,260 @@
+/* 전체 컨테이너 스타일 */
+.calendar-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 24px;
+    margin-bottom: 30px;
+}
+
+/* 달력 헤더 */
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 0 12px;
+}
+
+.calendar-header h2 {
+    font-size: 1.5rem;
+    color: #2575fc;
+    font-weight: 600;
+}
+
+.calendar-header button {
+    background: none;
+    border: none;
+    color: #2c3e50;
+    font-size: 1.2rem;
+    padding: 8px;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.calendar-header button:hover {
+    background: #f0f7ff;
+    color: #2575fc;
+}
+
+/* 달력 그리드 */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    padding: 12px;
+}
+
+.weekday {
+    text-align: center;
+    padding: 12px;
+    font-weight: 600;
+    color: #2c3e50;
+    border-bottom: 2px solid #f4f4f4;
+}
+
+.day {
+    text-align: center;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    position: relative;
+    min-height: 80px;
+    transition: all 0.2s ease;
+}
+
+.day:hover {
+    background-color: #f0f7ff;
+}
+
+.day.today {
+    background-color: #e8f4ff;
+    font-weight: 600;
+    color: #2575fc;
+}
+
+.day.has-event {
+    background-color: #fff3cd;
+    border: 2px solid #ffeeba;
+}
+
+.day.has-event::after {
+    content: '';
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    background-color: #2575fc;
+    border-radius: 50%;
+}
+
+.prev-month {
+    color: #bbb;
+}
+
+/* 신청 목록 */
+.applications-list {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 24px;
+}
+
+.applications-list h3 {
+    color: #2c3e50;
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #f4f4f4;
+}
+
+.application-item {
+    padding: 16px;
+    border-radius: 8px;
+    background: #f8f9fa;
+    margin-bottom: 16px;
+    transition: all 0.2s ease;
+}
+
+.application-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.property-info h4 {
+    color: #2575fc;
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+}
+
+.property-info p {
+    color: #666;
+    margin-bottom: 12px;
+}
+
+.date-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #666;
+    margin: 8px 0;
+}
+
+.date-info i {
+    color: #2575fc;
+}
+
+.no-applications {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.no-applications p {
+    color: #666;
+    margin-bottom: 16px;
+}
+
+.btn-primary {
+    background: #2575fc;
+    color: white;
+    padding: 10px 24px;
+    border-radius: 25px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: none;
+    font-weight: 500;
+}
+
+.btn-primary:hover {
+    background: #1b5cc5;
+    transform: translateY(-2px);
+}
+/* application-status.css에 추가/수정 */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    background: #f4f4f4;
+    padding: 2px;
+    border-radius: 8px;
+}
+
+.weekday {
+    text-align: center;
+    padding: 10px;
+    background: white;
+    font-weight: bold;
+    color: #333;
+}
+
+.day {
+    background: white;
+    padding: 10px;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.date-number {
+    font-size: 1.1em;
+    margin-bottom: 5px;
+}
+
+.prev-month {
+    color: #ccc;
+}
+
+.today {
+    background: #e8f4ff;
+}
+
+.event-marker {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-top: 2px;
+}
+
+/* application-status.css */
+.has-event {
+    background-color: #fff3cd !important;
+    position: relative;
+}
+
+.has-event .event-marker {
+    background-color: #2575fc;
+}
+
+.event-tooltip {
+    display: none;
+    position: absolute;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    min-width: 200px;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.has-event:hover .event-tooltip {
+    display: block;
+}
+
+.event-item {
+    padding: 4px 8px;
+    font-size: 12px;
+    color: #333;
+}
