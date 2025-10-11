@@ -66,11 +66,11 @@ class NormalizedMetaModelPredictor:
             # 개별 모델 스케일러들
             self.individual_scalers = joblib.load(f"{model_dir}/scalers.pkl")
 
-            # 정규화된 메타모델과 스케일러 로드
-            meta_model_dir = "0921_train_model/reduced_rule_meta_models"
-            self.meta_model = joblib.load(f"{meta_model_dir}/meta_model_normalized.pkl")
-            meta_scalers = joblib.load(f"{meta_model_dir}/scalers.pkl")
-            self.meta_scaler = meta_scalers['normalized']
+            # gb_coef_0.10 메타모델 로드 (R²=65.20%, 룰 중요도 49.36%, ML 중요도 46.19%)
+            meta_model_dir = "0921_train_model/extensive_low_rule_models_20251009_1543"
+            self.meta_model = joblib.load(f"{meta_model_dir}/rank1_gb_coef_0.10.pkl")
+            self.meta_scaler = joblib.load(f"{meta_model_dir}/rank1_gb_coef_0.10_scaler.pkl")
+            self.meta_rule_coef = 0.1  # 정규화 계수
 
             safe_print("모든 모델들이 성공적으로 로드되었습니다.")
 
@@ -419,8 +419,8 @@ class NormalizedMetaModelPredictor:
             ml_predictions['living'] * living_weight
         )
 
-        # 정규화된 룰베이스 점수
-        rule_normalized = ml_mean + (rule_based_original - 3.0) * (ml_std / 0.5) * 0.3
+        # 정규화된 룰베이스 점수 (coef_0.3_more_features 모델용 계수 0.3)
+        rule_normalized = ml_mean + (rule_based_original - 3.0) * (ml_std / 0.5) * self.meta_rule_coef
 
         # ML 점수 분산
         ml_score_variance = np.var(list(ml_predictions.values()))
