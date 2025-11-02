@@ -269,7 +269,7 @@ class NormalizedMetaModelPredictor:
             # 스케일링 및 예측
             X_scaled = scaler.transform(features_df)
             prediction = model.predict(X_scaled)[0]
-            predictions[model_type] = max(1, min(5, prediction))  # 1-5 범위로 클리핑
+            predictions[model_type] = prediction  # 원본 점수 그대로
 
         return predictions
 
@@ -438,18 +438,22 @@ class NormalizedMetaModelPredictor:
         # 메타모델로 최종 예측
         X_meta = np.array(meta_features).reshape(1, -1)
         X_meta_scaled = self.meta_scaler.transform(X_meta)
-        final_score = self.meta_model.predict(X_meta_scaled)[0]
+        final_score_raw = self.meta_model.predict(X_meta_scaled)[0]
+
+        # 디버그: 원본 점수 출력
+        safe_print(f"[모델 출력] 원본 최종점수: {final_score_raw:.3f}, ML점수: T={ml_predictions['transport']:.2f} E={ml_predictions['environment']:.2f} C={ml_predictions['complex']:.2f} L={ml_predictions['living']:.2f}")
 
         # 룰베이스 7개 영역 점수 계산
         rule_based_scores = self.calculate_rule_based_scores(lat, lng, user_preferences)
 
+        # 클리핑 제거 - 원본 점수 그대로 사용
         return {
-            'final_score': max(1, min(5, final_score)),
+            'final_score': round(final_score_raw, 3),
             'individual_scores': {
-                'transport': ml_predictions['transport'],
-                'environment': ml_predictions['environment'],
-                'complex': ml_predictions['complex'],
-                'living': ml_predictions['living']
+                'transport': round(ml_predictions['transport'], 3),
+                'environment': round(ml_predictions['environment'], 3),
+                'complex': round(ml_predictions['complex'], 3),
+                'living': round(ml_predictions['living'], 3)
             },
             'rule_based_scores': rule_based_scores,
             'rule_normalized': rule_normalized,
@@ -564,6 +568,17 @@ def recommend_properties_with_metamodel(preferences, preferred_regions=None, max
 
     safe_print(f"총 {len(property_scores)}개 매물 평가 완료")
 
+    # 중복 매물 제거 (주소 기준)
+    unique_properties = {}
+    for prop in property_scores:
+        address = prop.get('address', '')
+        # 동일 주소가 이미 있으면, 점수가 더 높은 것만 유지
+        if address not in unique_properties or prop['score'] > unique_properties[address]['score']:
+            unique_properties[address] = prop
+
+    property_scores = list(unique_properties.values())
+    safe_print(f"중복 제거 후: {len(property_scores)}개 매물")
+
     # 예산 내 매물과 초과 매물 분리
     within_budget = [prop for prop in property_scores if prop['within_budget']]
     premium = [prop for prop in property_scores if not prop['within_budget']]
@@ -605,10 +620,7 @@ CORS(app, resources={
 
 @app.route('/api/recommend', methods=['POST'])
 def recommend_properties():
-    """기존 하이브리드 추천 API - 메타모델로 리다이렉트"""
-    safe_print("API recommend request - redirecting to meta-model")
-
-    # 기존 요청을 메타모델 API로 리다이렉트
+    # 기존 룰베이스 기반으로 작동하던 코드를 메타모델 API로 리다이렉트
     return recommend_properties_with_meta()
 
 @app.route('/api/recommendations', methods=['POST'])
@@ -716,85 +728,6 @@ def recommend_properties_with_meta():
             pass
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/predict-meta', methods=['POST'])
-def predict_meta_score():
-    """정규화된 메타모델을 사용한 점수 예측 API"""
-    try:
-        safe_print("Meta prediction API request received")
-    except:
-        pass
-
-    if not request.is_json:
-        return jsonify({"error": "Content-Type must be application/json"}), 415
-
-    try:
-        data = request.get_json()
-
-        # 요청 데이터 확인
-        if 'latitude' not in data or 'longitude' not in data:
-            return jsonify({"error": "latitude and longitude are required"}), 400
-
-        lat = float(data['latitude'])
-        lng = float(data['longitude'])
-        user_preferences = data.get('preferences', None)  # 선호도는 선택사항
-
-        safe_print("="*50)
-        safe_print("Meta model prediction API request:")
-        safe_print(f"Coordinates: ({lat}, {lng})")
-        if user_preferences:
-            safe_print(f"User preferences: {user_preferences}")
-        safe_print("="*50)
-
-        # 예측기 가져오기
-        predictor_instance = get_predictor()
-
-        # 점수 예측
-        result = predictor_instance.predict_final_score(lat, lng, user_preferences)
-
-        # 응답 데이터 구성 (hybrid_recommendation_model.py 형식 참고)
-        response = {
-            'success': True,
-            'prediction': {
-                'final_score': round(result['final_score'], 3),
-                'individual_scores': {
-                    'transport': round(result['individual_scores']['transport'], 3),
-                    'environment': round(result['individual_scores']['environment'], 3),
-                    'complex': round(result['individual_scores']['complex'], 3),
-                    'living': round(result['individual_scores']['living'], 3)
-                },
-                'detail_scores': {
-                    # 룰베이스 7개 영역만 (육각형 차트용)
-                    **result['rule_based_scores']
-                },
-                'meta_features': {
-                    'rule_normalized': round(result['rule_normalized'], 3),
-                    'ml_score_variance': round(result['ml_score_variance'], 3)
-                },
-                'coordinates': {
-                    'latitude': lat,
-                    'longitude': lng
-                },
-                'user_preferences': user_preferences
-            }
-        }
-
-        safe_print("="*50)
-        safe_print("Meta model prediction API response:")
-        safe_print(f"Final score: {response['prediction']['final_score']}")
-        safe_print(f"Transport: {response['prediction']['individual_scores']['transport']}")
-        safe_print(f"Environment: {response['prediction']['individual_scores']['environment']}")
-        safe_print(f"Complex: {response['prediction']['individual_scores']['complex']}")
-        safe_print(f"Living: {response['prediction']['individual_scores']['living']}")
-        safe_print("="*50)
-
-        return jsonify(response)
-
-    except Exception as e:
-        try:
-            safe_print("Meta prediction error occurred:", str(e))
-        except:
-            pass
-        return jsonify({"error": str(e), "success": False}), 500
 
 
 if __name__ == '__main__':
