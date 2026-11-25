@@ -5,10 +5,9 @@ spring:
       path: /h2-console
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: 3415
-    driver-class-name: org.postgresql.Driver
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/houch}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:비밀번호}
 
   jpa:
     hibernate:
@@ -40,3 +39,11 @@ server:
 openai:
   api:
     key: ${OPENAI_API_KEY:your-api-key-here}
+
+services:
+  spring:
+    environment:
+      FLASK_API_URL: http://flask:5001/api/recommend
+
+  flask:
+  # Flask 설정

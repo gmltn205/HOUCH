@@ -10,6 +10,7 @@ import org.example.recommendhouse.dto.PropertyDetails;
 import org.example.recommendhouse.dto.RecommendationRequest;
 import org.example.recommendhouse.entity.User;
 import org.example.recommendhouse.service.UserProfileService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -27,7 +28,9 @@ public class RecommendController {
 
     private final RestTemplate restTemplate;
     private final UserProfileService userProfileService;
-    private static final String FLASK_API_URL = "http://localhost:5001/api/recommend";
+
+    @Value("${flask.api.url}")
+    private String FLASK_API_URL;
 
     @PostMapping("/recommendations")
     public ResponseEntity<RecommendResponse> getRecommendations(@RequestBody RecommendationRequest request, HttpSession session) {
