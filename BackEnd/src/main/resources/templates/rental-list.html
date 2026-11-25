@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공공지원 민간임대 매물</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/rental-list.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+</head>
+<body>
+<div class="sidebar">
+    <ul>
+        <li><a href="/" aria-label="홈"><i class="fa-solid fa-house"></i></a></li>
+        <li><a href="/recommend" aria-label="사용자 맞춤 임대 추천 서비스"><i class="fa-solid fa-check-to-slot"></i></a></li>
+        <li><a href="/houses" aria-label="공공임대 경쟁률 랭킹"><i class="fa-solid fa-ranking-star"></i></a></li>
+        <li><a href="/map" aria-label="지도로 찾아보기"><i class="fa-solid fa-map-location-dot"></i></a></li>
+        <li><a href="/applyhome/gyeonggi-rentals" aria-label="정책 및 보조금"><i class="fa-solid fa-hand-holding-dollar"></i></a></li>
+        <li><a href="/chatbot" aria-label="챗봇"><i class="fa-brands fa-bots"></i></a></li>
+        <li><a href="/mypage" aria-label="마이페이지"><i class="fa-solid fa-user"></i></a></li>
+    </ul>
+</div>
+
+<div class="main-content">
+    <section class="competition">
+        <div class="competition-header">
+            <h3 class="competition-title">경기도 공공지원 민간임대 매물</h3>
+        </div>
+        <div class="competition-grid">
+            <div th:each="rental : ${rentals}" class="competition-item">
+                <div class="favorite-icon" th:attr="data-house-id=${rental.houseManageNo}">
+                    <i class="fa-regular fa-heart"></i>
+                </div>
+                <div class="competition-info">
+                    <div class="competition-title" th:text="${rental.houseName}">주택명</div>
+                    <div class="competition-location" th:text="${rental.address}">주소</div>
+                    <div class="competition-area" th:text="|총 공급세대: ${rental.totalSupplyCount}세대|">총 공급세대</div>
+                    <div class="competition-date">
+                        <span>청약접수: </span>
+                        <span th:text="|${rental.subscriptionStartDate} ~ ${rental.subscriptionEndDate}|">접수 기간</span>
+                    </div>
+                    <div class="view-detail">
+                        <a th:href="${rental.homepageUrl}" target="_blank">
+                            상세정보 보기
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pagination">
+            <button id="prevPage" class="page-btn" th:disabled="${currentPage == 1}">◁</button>
+            <div class="page-numbers">
+                <span th:text="${currentPage}">1</span>
+            </div>
+            <button id="nextPage" class="page-btn" th:disabled="${#lists.size(rentals) < 7}">▷</button>
+        </div>
+    </section>
+</div>
+
+<script src="/js/rental-list.js"></script>
+</body>
+</html>

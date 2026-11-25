@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>단지 목록</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/houselist.css">  <!-- 파일명 일치 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+<!-- 사이드바 -->
+<div class="sidebar">
+    <ul>
+        <li><a href="/" aria-label="홈"><i class="fa-solid fa-house"></i></a></li>
+        <li><a href="/recommend" aria-label="사용자 맞춤 임대 추천 서비스"><i class="fa-solid fa-check-to-slot"></i></a></li>
+        <li><a href="/houses" aria-label="공공임대 경쟁률 랭킹"><i class="fa-solid fa-ranking-star"></i></a></li>
+        <li><a href="/map" aria-label="지도로 찾아보기"><i class="fa-solid fa-map-location-dot"></i></a></li>
+        <li><a href="/applyhome/gyeonggi-rentals" aria-label="정책 및 보조금"><i class="fa-solid fa-hand-holding-dollar"></i></a></li>
+        <li><a href="/chatbot" aria-label="챗봇"><i class="fa-brands fa-bots"></i></a></li>
+        <li><a href="/mypage" aria-label="마이페이지"><i class="fa-solid fa-user"></i></a></li>
+    </ul>
+</div>
+
+<div class="main-content">
+    <!-- 상단 바 -->
+    <header>
+        <div class="top-bar">
+            <div class="logo">HOUCH!</div>
+            <div class="user-menu">
+                <div id="loggedOutMenu">
+                    <button class="login-btn" onclick="location.href='/login'">로그인/회원가입</button>
+                </div>
+                <div id="loggedInMenu" style="display: none;">
+                    <button class="mypage-btn" onclick="location.href='/mypage'">마이페이지</button>
+                    <button class="logout-btn" onclick="logout()">로그아웃</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 필터 및 검색 영역 -->
+    <div class="filter-container">
+        <div class="filter-options">
+            <select id="cityFilter">
+                <option value="">전체 지역</option>
+                <option value="가평군">가평군</option>
+                <option value="고양시 덕양구">고양시 덕양구</option>
+                <option value="과천시">과천시</option>
+                <option value="광명시">광명시</option>
+                <option value="광주시">광주시</option>
+                <option value="구리시">구리시</option>
+                <option value="군포시">군포시</option>
+                <option value="김포시">김포시</option>
+                <option value="남양주시">남양주시</option>
+                <option value="동두천시">동두천시</option>
+                <option value="부천시 소사구">부천시 소사구</option>
+                <option value="부천시 원미구">부천시 원미구</option>
+                <option value="성남시 수정구">성남시 수정구</option>
+                <option value="성남시 중원구">성남시 중원구</option>
+                <option value="수원시 팔달구">수원시 팔달구</option>
+                <option value="수원시 권선구">수원시 권서구</option>
+                <option value="수원시 영통구">수원시 영통구</option>
+                <option value="시흥시">시흥시</option>
+                <option value="안산시">안산시</option>
+                <option value="안성시">안성시</option>
+                <option value="안양시 동안구">안양시 동안구</option>
+                <option value="안양시 만안구">안양시 만안구</option>
+                <option value="양주시">양주시</option>
+                <option value="양평군">양평군</option>
+                <option value="여주시">여주시</option>
+                <option value="연천군">연천군</option>
+                <option value="오산시">오산시</option>
+                <option value="용인시 처인구">용인시 처인구</option>
+                <option value="의왕시">의왕시</option>
+                <option value="의정부시">의정부시</option>
+                <option value="이천시">이천시</option>
+                <option value="파주시">파주시</option>
+                <option value="평택시">평택시</option>
+                <option value="포천시">포천시</option>
+                <option value="하남시">하남시</option>
+                <option value="화성시">화성시</option>
+            </select>
+
+            <select id="houseTypeFilter">
+                <option value="">전체 주택유형</option>
+                <option value="다가구주택">다가구주택</option>
+                <option value="다세대주택">다세대주택</option>
+                <option value="아파트">아파트</option>
+                <option value="연립주택">연립주택</option>
+            </select>
+
+            <div class="deposit-range">
+                <input type="number" id="minDeposit" placeholder="최소 보증금">
+                <span>~</span>
+                <input type="number" id="maxDeposit" placeholder="최대 보증금">
+            </div>
+
+            <div class="monthly-range">
+                <input type="number" id="minMonthly" placeholder="최소 월세">
+                <span>~</span>
+                <input type="number" id="maxMonthly" placeholder="최대 월세">
+            </div>
+            <button id="searchBtn">검색</button>
+        </div>
+
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th>단지명</th>
+                <th>주소</th>
+                <th>지역</th>
+                <th>주택유형</th>
+                <th>보증금</th>
+                <th>월세</th>
+                <th>조회수</th>
+            </tr>
+            </thead>
+            <tbody id="houseList">
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination">
+        <button id="prevPage" class="page-btn">◁</button>
+        <div id="pageNumbers" class="page-numbers"></div>
+        <button id="nextPage" class="page-btn">▷</button>
+    </div>
+</div>
+
+<script src="/js/houselist.js"></script>
+</body>
+</html>

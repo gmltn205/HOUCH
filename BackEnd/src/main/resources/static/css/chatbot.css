@@ -1,0 +1,268 @@
+/* 챗봇 컨테이너 */
+.chatbot-container {
+    max-width: 800px;
+    margin: 20px auto;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.chatbot-header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 20px;
+    background: linear-gradient(90deg, #6a11cb, #2575fc);
+    border-radius: 10px;
+    color: white;
+}
+
+.chatbot-header h1 {
+    margin: 0 0 10px 0;
+    font-size: 24px;
+}
+
+.chatbot-header p {
+    margin: 0;
+    font-size: 16px;
+    opacity: 0.9;
+}
+
+/* 채팅 영역 */
+.chat-area {
+    height: 500px;
+    overflow-y: auto;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+/* 메시지 컨테이너 스타일 수정 */
+.message {
+    margin-bottom: 10px; /* 메시지 간 간격 축소 (기존 15px) */
+    display: flex;
+    flex-direction: column;
+}
+
+/* 메시지 내용 스타일 수정 */
+.message-content {
+    max-width: 70%;
+    padding: 10px 14px; /* 패딩 살짝 축소 */
+    border-radius: 15px;
+    font-size: 14px;
+    line-height: 1; /* 줄간격 축소 (기존 1.6) */
+}
+
+/* 봇 메시지 스타일 */
+.bot-message .message-content {
+    background: #2575fc;
+    color: white;
+    font-weight: 400;
+}
+
+/* 이모지 스타일 */
+.message-content em {
+    font-style: normal;
+    font-size: 1.2em;
+}
+/* 마크다운 스타일링 */
+.message-content h1,
+.message-content h2,
+.message-content h3 {
+    margin: 10px 0;
+    font-weight: 700;
+}
+
+.message-content p {
+    margin: 4px 0;
+}
+
+.message-content ul,
+.message-content ol {
+    margin: 4px 0; /* 리스트 간격*/
+    padding-left: 20px;
+}
+
+.message-content li {
+    margin: 4px 0;
+}
+
+/* 섹션 구분 스타일 수정 */
+.section {
+    margin: 8px 0; /* 섹션 간격 축소 (기존 12px) */
+    padding: 4px 0; /* 패딩 축소 */
+}
+
+
+.section:last-child {
+    border-bottom: none;
+}
+
+/* 이모지 헤더 스타일 */
+.emoji-header {
+    font-weight: 700;
+    font-size: 1.1em;
+    margin: 8px 0 4px 0; /* 상하 마진 축소 */
+}
+
+
+.bot-message .message-content {
+    background: #2575fc;
+    color: white;
+}
+
+.user-message {
+    align-items: flex-end;
+}
+
+.user-message .message-content {
+    background: #e9ecef;
+    color: #333;
+}
+
+/* 입력 영역 */
+.input-area {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+#userInput {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 20px;
+    font-size: 14px;
+}
+
+#sendButton {
+    background: #2575fc;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#sendButton:hover {
+    background: #1b5cc5;
+}
+
+/* 스크롤바 스타일링 */
+.chat-area::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-area::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.chat-area::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.chat-area::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* 사이드바 active 상태 */
+.sidebar ul li a.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+}
+
+
+/* 기본 폰트 설정 */
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+/* 줄바꿈 사이 간격 조정을 위한 스타일 */
+.message-content br + br {
+    content: "";
+    display: block;
+    margin-top: -0.5em; /* 연속된 br 태그 간격 축소 */
+}
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top-color: #3498db;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Message with thinking animation */
+.loading-message {
+    display: flex;
+    align-items: center;
+}
+
+.loading-dots {
+    display: inline-flex;
+    margin-left: 8px;
+}
+
+.dot {
+    width: 6px;
+    height: 6px;
+    margin: 0 2px;
+    background-color: #666;
+    border-radius: 50%;
+    animation: dot-flashing 1s infinite alternate;
+}
+
+.dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes dot-flashing {
+    0% { opacity: 0.2; }
+    100% { opacity: 1; }
+}
+
+/* 비활성화된 입력창 스타일 */
+#userInput:disabled, #sendButton:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* API 선택기 스타일 */
+.api-selector {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0 15px;
+}
+
+.api-selector select {
+    padding: 5px 10px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    background-color: white;
+    font-family: 'Noto Sans KR', sans-serif;
+    margin-left: 10px;
+}

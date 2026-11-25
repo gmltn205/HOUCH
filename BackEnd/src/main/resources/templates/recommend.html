@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>추천 시스템</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/recommend.css">
+    <script defer src="/js/recommend.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+</head>
+<body>
+<div class="sidebar">
+    <ul>
+        <li><a href="/" aria-label="홈"><i class="fa-solid fa-house"></i></a></li>
+        <li><a href="/recommend" aria-label="사용자 맞춤 임대 추천 서비스"><i class="fa-solid fa-check-to-slot"></i></a></li>
+        <li><a href="/houses" aria-label="공공임대 경쟁률 랭킹"><i class="fa-solid fa-ranking-star"></i></a></li>
+        <li><a href="/map" aria-label="지도로 찾아보기"><i class="fa-solid fa-map-location-dot"></i></a></li>
+        <li><a href="/applyhome/gyeonggi-rentals" aria-label="정책 및 보조금"><i class="fa-solid fa-hand-holding-dollar"></i></a></li>
+        <li><a href="/chatbot" aria-label="챗봇"><i class="fa-brands fa-bots"></i></a></li>
+        <li><a href="/mypage" aria-label="마이페이지"><i class="fa-solid fa-user"></i></a></li>
+    </ul>
+</div>
+
+<div class="main-content">
+   <!-- 상단 바(Top Bar) -->
+    <header>
+        <div class="top-bar">
+            <div class="logo">HOUCH!</div>
+            <div class="user-menu">
+                <div id="loggedOutMenu">
+                    <button class="login-btn" onclick="location.href='/login'">로그인/회원가입</button>
+                </div>
+                <div id="loggedInMenu" style="display: none;">
+                    <button class="mypage-btn" onclick="location.href='/mypage'">마이페이지</button>
+                    <button class="logout-btn" onclick="logout()">로그아웃</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+   <div class="form-container">
+       <h1>🏡 사용자 맞춤 추천 시스템</h1>
+
+       <div class="input-section">
+           <h2>💰 예산 설정</h2>
+           <div class="input-group">
+               <label for="maxDeposit">보증금 한도 (₩)</label>
+               <input type="number" id="maxDeposit" value="10000000">
+           </div>
+
+           <div class="input-group">
+               <label for="maxMonthly">월 임대료 한도 (₩)</label>
+               <input type="number" id="maxMonthly" value="500000">
+           </div>
+       </div>
+
+       <div class="preference-section">
+           <h2>🏠 선호도 설정</h2>
+           <div class="slider-group">
+               <div class="slider-item">
+                   <label for="edu">교육</label>
+                   <div class="slider-container">
+                       <input type="range" id="edu" min="0" max="1" step="0.1" value="0.8">
+                       <span class="slider-value" id="eduVal">0.8</span>
+                   </div>
+               </div>
+
+               <div class="slider-item">
+                   <label for="med">의료</label>
+                   <div class="slider-container">
+                       <input type="range" id="med" min="0" max="1" step="0.1" value="0.5">
+                       <span class="slider-value" id="medVal">0.5</span>
+                   </div>
+               </div>
+
+               <div class="slider-item">
+                   <label for="trans">교통</label>
+                   <div class="slider-container">
+                       <input type="range" id="trans" min="0" max="1" step="0.1" value="1.0">
+                       <span class="slider-value" id="transVal">1.0</span>
+                   </div>
+               </div>
+
+               <div class="slider-item">
+                   <label for="shop">쇼핑</label>
+                   <div class="slider-container">
+                       <input type="range" id="shop" min="0" max="1" step="0.1" value="0.6">
+                       <span class="slider-value" id="shopVal">0.6</span>
+                   </div>
+               </div>
+
+               <div class="slider-item">
+                   <label for="conv">편의성</label>
+                   <div class="slider-container">
+                       <input type="range" id="conv" min="0" max="1" step="0.1" value="0.7">
+                       <span class="slider-value" id="convVal">0.7</span>
+                   </div>
+               </div>
+
+               <div class="slider-item">
+                   <label for="safety">안전성</label>
+                   <div class="slider-container">
+                       <input type="range" id="safety" min="0" max="1" step="0.1" value="0.9">
+                       <span class="slider-value" id="safetyVal">0.9</span>
+                   </div>
+               </div>
+
+               <div class="slider-item">
+                   <label for="comfort">쾌적성</label>
+                   <div class="slider-container">
+                       <input type="range" id="comfort" min="0" max="1" step="0.1" value="0.8">
+                       <span class="slider-value" id="comfortVal">0.8</span>
+                   </div>
+               </div>
+           </div>
+       </div>
+
+       <button onclick="getRecommendations()" class="recommend-btn">
+           추천 받기
+       </button>
+   </div>
+
+   <div id="results-container" style="display: none;">
+       <h2>📋 추천 결과</h2>
+       <div id="results">
+           <div class="results-grid">
+               <!-- 여기에 매물 카드들이 표시됩니다 -->
+           </div>
+       </div>
+   </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+</body>
+</html>

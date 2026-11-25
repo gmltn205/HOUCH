@@ -1,0 +1,166 @@
+.competition {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.competition-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.competition-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.competition-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.competition-item {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.competition-item:hover {
+    transform: scale(1.02);
+}
+
+.favorite-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    cursor: pointer;
+}
+
+.favorite-icon i {
+    font-size: 1.2rem;
+    color: #888;
+    transition: color 0.3s ease;
+}
+
+.favorite-icon i:hover {
+    color: #ff4444;
+}
+
+.favorite-icon i.fa-solid {
+    color: #ff4444;
+}
+
+.competition-info {
+    padding: 20px;
+}
+
+.competition-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #2575fc;
+}
+
+.competition-location,
+.competition-area,
+.competition-date {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.view-detail a {
+    display: inline-block;
+    background: #2575fc;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    margin-top: 10px;
+    transition: background 0.3s ease;
+}
+
+.view-detail a:hover {
+    background: #1a5ae8;
+}
+
+.view-detail a i {
+    margin-left: 5px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+    gap: 15px;
+}
+
+.page-btn {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease;
+}
+
+.page-btn:hover {
+    background: #f5f5f5;
+}
+
+.page-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.page-numbers {
+    font-size: 1rem;
+    color: #333;
+    font-weight: bold;
+}
+
+/* 기존 CSS에 추가 */
+.view-detail a {
+    display: inline-block;
+    background: #f0f0f0;
+    color: #2575fc;
+    padding: 6px 12px;
+    border-radius: 5px;
+    text-decoration: none;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    transition: background 0.3s ease;
+}
+
+.view-detail a:hover {
+    background: #e0e0e0;
+}
+
+.competition-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 300px; /* 고정 높이 */
+}
+
+.competition-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.view-detail {
+    margin-top: auto; /* 하단 고정 */
+    text-align: center;
+}

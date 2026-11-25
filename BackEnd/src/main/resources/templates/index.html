@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>주택 추천 시스템</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="container">
+    <h1>주택 추천 시스템</h1>
+    <div class="preferences-form">
+        <h2>선호도 설정</h2>
+        <div class="form-group">
+            <label>교육 중요도:</label>
+            <input type="range" id="education" min="0" max="100" value="20">
+        </div>
+        <!-- 다른 선호도 입력 필드들 -->
+        <div class="form-group">
+            <label>최대 보증금:</label>
+            <input type="number" id="maxDeposit">
+        </div>
+        <div class="form-group">
+            <label>최대 월세:</label>
+            <input type="number" id="maxMonthly">
+        </div>
+        <button onclick="getRecommendations()">추천 받기</button>
+    </div>
+    <div id="results"></div>
+</div>
+<script src="/js/main.js"></script>
+</body>
+</html>
