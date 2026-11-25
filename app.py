@@ -2,17 +2,17 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS  # CORS 지원을 위해
 import sys
-
+import os
 # stdout 버퍼링 비활성화
 sys.stdout.reconfigure(line_buffering=True)
 
 def safe_print(*args, **kwargs):
-    """안전한 print 함수 - cp949 인코딩 에러 방지"""
+    """인코딩 에러 방지"""
     try:
         print(*args, **kwargs)
     except UnicodeEncodeError:
         try:
-            # 한글이 포함된 문자열을 안전하게 처리
+            # 문자열처리
             safe_args = []
             for arg in args:
                 if isinstance(arg, str):
@@ -25,7 +25,6 @@ def safe_print(*args, **kwargs):
     except Exception:
         pass
 
-# from recommendation_hybrid import recommend_properties_parallel  # 하이브리드 모델 제거
 import joblib
 import pandas as pd
 import numpy as np
@@ -34,13 +33,14 @@ from pymongo import MongoClient
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut
-import time
 import json
 
 class NormalizedMetaModelPredictor:
     def __init__(self):
         # MongoDB 연결
-        self.client = MongoClient("mongodb://localhost:27017/")
+        self.client = MongoClient(
+            os.getenv("MONGODB_URI", "mongodb://localhost:27017/")
+        )
         self.db = self.client["houch_db"]
 
         # 모델들과 스케일러 로드
@@ -101,7 +101,7 @@ class NormalizedMetaModelPredictor:
             'fire_stations': {'lat': '위도', 'lng': '경도'}
         }
 
-        # 다양한 반경에서 밀도 계산 (집계 모델과 동일)
+        # 여러 반경에서 밀도 계산
         radii = [0.5, 1.0, 2.0, 3.0, 5.0]  # km
         density_features = {}
 
@@ -123,8 +123,8 @@ class NormalizedMetaModelPredictor:
                             facility_lat = float(facility[coords['lat']])
                             facility_lng = float(facility[coords['lng']])
 
-                            distance = haversine((lat, lng), (facility_lat, facility_lng))
-                            if distance <= radius:
+                            distance = haversine((lat, lng), (facility_lat, facility_lng)) # 거리계산 api인 haversine을 사용
+                            if distance <= radius: #범위 내라면 카운트 증가
                                 count += 1
                         except:
                             continue
@@ -144,9 +144,8 @@ class NormalizedMetaModelPredictor:
         return density_features
 
     def get_area_demographics(self, lat: float, lng: float) -> dict:
-        """지역 인구통계학적 정보 (기본값 반환)"""
-        # 실제 서비스에서는 좌표 기반으로 지역 정보를 추출해야 하지만,
-        # 테스트를 위해 기본값 반환
+        """지역 인구통계학적 정보"""
+        # 실제 서비스에서는 데이터 오류로 인해 기본 값을 반환
         return {
             'population_density': 1000,
             'crime_rate': 50,
@@ -166,7 +165,7 @@ class NormalizedMetaModelPredictor:
             self.lh_properties = pd.DataFrame()
 
     def load_coordinates_cache(self):
-        """좌표 캐시 로드"""
+        """미리 저장된 좌표 캐시 로드, 주소를 좌표로 저장하는 과정은 매우 길기 때문"""
         try:
             with open('AI_DATA/coordinates.json', 'r', encoding='utf-8') as f:
                 self.coordinates_cache = json.load(f)
@@ -176,7 +175,7 @@ class NormalizedMetaModelPredictor:
             self.coordinates_cache = {}
 
     def save_coordinates_cache(self):
-        """좌표 캐시 저장"""
+        """좌표가 없는 캐시 저장"""
         try:
             with open('AI_DATA/coordinates.json', 'w', encoding='utf-8') as f:
                 json.dump(self.coordinates_cache, f, ensure_ascii=False)
@@ -203,25 +202,26 @@ class NormalizedMetaModelPredictor:
         return None
 
     def predict_individual_scores(self, lat: float, lng: float) -> dict:
-        """개별 모델들로 각 영역 점수 예측"""
+        """개별 모델들로 각 영역 점수를 예측한다."""
         density_features = self.calculate_facility_density_features(lat, lng)
         area_info = self.get_area_demographics(lat, lng)
 
-        # 각 모델별 피처 구성 (집계 모델과 동일한 구조)
+        # 먼저 각 모델별 피처 구성
         model_features = {
             'transport': {
-                # 밀도 피처 (버스, 지하철)
+                # 교통 밀도 계산(버스, 지하철)
+                #k는 어떤 시설인지, v는 그 밀도값을
                 **{k: v for k, v in density_features.items() if 'bus_stations' in k or 'subway_stations' in k},
                 # 지역 정보
                 'population_density': area_info['population_density'],
                 'urbanization_level': area_info['urbanization_level'],
-                # 리뷰 일관성 (예측 시에는 기본값)
-                'review_count': 10,  # 가상값
+                # 리뷰 일관성 (리뷰가 존재하지 않는 공공임대 매물을 사용하기 때문에 임의의 고정값을 사용합니다. 일관성은 대부분의 사람들이 비슷하게 평가하는 것이고, 리뷰갯수또한 기본값을 지정해놓는다. 모델이 이 피처를 요구하기 때문에 설정)
+                'review_count': 10,  # 임의의 고정값 사용.
                 'score_consistency': 0.8  # 가상값
             },
 
             'environment': {
-                # 밀도 피처 (병원, 학교, 학원, 유치원, 편의점, 쇼핑몰)
+                # 환경 밀도 피처 (병원, 학교, 학원, 유치원, 편의점, 쇼핑몰)
                 **{k: v for k, v in density_features.items() if any(facility in k for facility in ['hospitals', 'schools', 'academies', 'kindergartens', 'convience_stores', 'shopping_malls'])},
                 # 지역 정보
                 'population_density': area_info['population_density'],
@@ -254,14 +254,14 @@ class NormalizedMetaModelPredictor:
                 'score_consistency': 0.8
             }
         }
-
+        #결과 저장
         predictions = {}
 
         for model_type in ['transport', 'environment', 'complex', 'living']:
-            model = getattr(self, f"{model_type}_model")
-            scaler = self.individual_scalers[model_type]
+            model = getattr(self, f"{model_type}_model") # 모델뽑고
+            scaler = self.individual_scalers[model_type] # 스케일러를 사용 why? -> 임대 가격이나 리뷰수같은 값들은 모두 상이하기 때문에 비슷한 값으로 스케일링
 
-            # 피처를 DataFrame으로 변환 후 target_score 제거
+            # 피처를 DataFrame으로 변환 후 target_score 제거(정답이 없음)
             features_df = pd.DataFrame([model_features[model_type]])
             if 'target_score' in features_df.columns:
                 features_df = features_df.drop('target_score', axis=1)
@@ -269,7 +269,7 @@ class NormalizedMetaModelPredictor:
             # 스케일링 및 예측
             X_scaled = scaler.transform(features_df)
             prediction = model.predict(X_scaled)[0]
-            predictions[model_type] = max(1, min(5, prediction))  # 1-5 범위로 클리핑
+            predictions[model_type] = prediction #모델이 예측한 값 저장
 
         return predictions
 
@@ -278,12 +278,13 @@ class NormalizedMetaModelPredictor:
         density_features = self.calculate_facility_density_features(lat, lng)
         area_info = self.get_area_demographics(lat, lng)
 
-        # 7개 영역별 점수 계산 (1-5 범위)
+        # 7개 영역별 점수 계산
         scores = {}
 
         # 개수 기반 계산으로 변경 (밀도 대신 반경별 시설 개수 합산)
 
         # 1. 교통 (버스정류장, 지하철역 개수) - 0~1 범위
+        # 다양한 반경을 기준으로 계산한다.
         bus_count = self.count_nearby_facilities(lat, lng, 'bus_stations', [0.5, 1.0, 2.0])
         subway_count = self.count_nearby_facilities(lat, lng, 'subway_stations', [0.5, 1.0, 2.0])
         transport_score = min(1.0, max(0.0, (bus_count * 0.02 + subway_count * 0.05)))
@@ -293,12 +294,12 @@ class NormalizedMetaModelPredictor:
         school_count = self.count_nearby_facilities(lat, lng, 'schools', [1.0, 2.0, 3.0])
         academy_count = self.count_nearby_facilities(lat, lng, 'academies', [1.0, 2.0, 3.0])
         education_score = min(1.0, max(0.0, (school_count * 0.03 + academy_count * 0.02)))
-        scores['교육'] = round(education_score, 3)
+        scores['교육'] = round(education_score, 3) #소수점 셋째자리까찌
 
         # 3. 의료 (병원 개수) - 0~1 범위
         hospital_count = self.count_nearby_facilities(lat, lng, 'hospitals', [1.0, 2.0, 3.0])
         medical_score = min(1.0, max(0.0, hospital_count * 0.04))
-        scores['의료'] = round(medical_score, 3)
+        scores['의료'] = round(medical_score, 3) 
 
         # 4. 쇼핑 (쇼핑몰, 편의점 개수) - 0~1 범위
         mall_count = self.count_nearby_facilities(lat, lng, 'shopping_malls', [1.0, 2.0, 3.0])
@@ -379,7 +380,7 @@ class NormalizedMetaModelPredictor:
         # 개별 모델 예측
         ml_predictions = self.predict_individual_scores(lat, lng)
 
-        # 사용자 선호도 처리 (기본값 설정)
+        # 사용자 선호도 처리 (유저 선호도가 없다면 기본값으로 설정)
         if user_preferences is None:
             user_preferences = {
                 '교통': 0.25,
@@ -390,10 +391,9 @@ class NormalizedMetaModelPredictor:
                 '편의성': 0.10
             }
 
-        # 영어-한국어 매핑 지원
+
         def get_preference_value(korean_key, english_key, default_value):
-            return user_preferences.get(korean_key,
-                   user_preferences.get(english_key, default_value))
+            return user_preferences.get(korean_key,user_preferences.get(english_key, default_value)) # 키 두개를 모두 찾아보고 없으면, 기본 값
 
         # 개별 점수별 가중치 계산
         transport_weight = get_preference_value('교통', 'transport', 0.25)
@@ -410,17 +410,17 @@ class NormalizedMetaModelPredictor:
         # 룰베이스 정규화 점수 계산
         ml_mean = np.mean(list(ml_predictions.values()))
         ml_std = np.std(list(ml_predictions.values()))
-
-        # 룰베이스 원본 점수 (사용자 선호도 반영)
-        rule_based_original = (
+        self.meta_rule_coef = 0.3
+        # 각 개별 점수를 가중 평균하여 구함 (사용자 선호도 반영)
+        ml_sum = (
             ml_predictions['transport'] * transport_weight +
             ml_predictions['environment'] * environment_weight +
             ml_predictions['complex'] * complex_weight +
             ml_predictions['living'] * living_weight
         )
 
-        # 정규화된 룰베이스 점수
-        rule_normalized = ml_mean + (rule_based_original - 3.0) * (ml_std / 0.5) * 0.3
+        rule_based_scores = self.calculate_rule_based_scores(lat, lng, user_preferences)
+        rule_normalized = ml_mean + (ml_sum - 3.0) * (ml_std / 0.5) * self.meta_rule_coef
 
         # ML 점수 분산
         ml_score_variance = np.var(list(ml_predictions.values()))
@@ -438,18 +438,19 @@ class NormalizedMetaModelPredictor:
         # 메타모델로 최종 예측
         X_meta = np.array(meta_features).reshape(1, -1)
         X_meta_scaled = self.meta_scaler.transform(X_meta)
-        final_score = self.meta_model.predict(X_meta_scaled)[0]
+        final_score_raw = self.meta_model.predict(X_meta_scaled)[0]
 
-        # 룰베이스 7개 영역 점수 계산
-        rule_based_scores = self.calculate_rule_based_scores(lat, lng, user_preferences)
+        # 디버그: 원본 점수 출력
+        safe_print(f"[모델 출력] 원본 최종점수: {final_score_raw:.3f}, ML점수: T={ml_predictions['transport']:.2f} E={ml_predictions['environment']:.2f} C={ml_predictions['complex']:.2f} L={ml_predictions['living']:.2f}")
 
+        # 점수 반환
         return {
-            'final_score': max(1, min(5, final_score)),
+            'final_score': round(final_score_raw, 3),
             'individual_scores': {
-                'transport': ml_predictions['transport'],
-                'environment': ml_predictions['environment'],
-                'complex': ml_predictions['complex'],
-                'living': ml_predictions['living']
+                'transport': round(ml_predictions['transport'], 3),
+                'environment': round(ml_predictions['environment'], 3),
+                'complex': round(ml_predictions['complex'], 3),
+                'living': round(ml_predictions['living'], 3)
             },
             'rule_based_scores': rule_based_scores,
             'rule_normalized': rule_normalized,
@@ -496,7 +497,7 @@ def recommend_properties_with_metamodel(preferences, preferred_regions=None, max
             return {
                 'score': round(final_score, 3),
                 'detail_scores': {
-                    # 룰베이스 7개 영역만 (육각형 차트용)
+                    # (육각형 차트용 룰베이스 점수)
                     **result['rule_based_scores']
                 },
                 'address': address,
@@ -517,16 +518,16 @@ def recommend_properties_with_metamodel(preferences, preferred_regions=None, max
             safe_print(f"매물 처리 오류: {e}")
             return None
 
-    # 지역 및 예산 필터링을 먼저 적용하여 처리할 매물 수 줄이기
+    # 지역 및 예산 필터링을 선 적용 -> 처리할 매물 수 줄이기
     filtered_properties = predictor_instance.lh_properties.copy()
 
-    # 지역 필터링 먼저 적용
+    # 지역 필터링
     if preferred_regions:
         safe_print(f"지역 필터링: {preferred_regions}")
         filtered_properties = filtered_properties[filtered_properties['시군구'].isin(preferred_regions)]
         safe_print(f"지역 필터링 후 매물 수: {len(filtered_properties)}개")
 
-    # 예산 필터링도 미리 적용 (일부)
+    # 예산 필터링 (일부)
     if max_deposit or max_monthly:
         initial_count = len(filtered_properties)
         if max_deposit:
@@ -545,9 +546,15 @@ def recommend_properties_with_metamodel(preferences, preferred_regions=None, max
         safe_print("필터링 조건에 맞는 매물이 없습니다.")
         return {'recommended': [], 'premium': []}
 
+    # 중복 매물 제거 (점수 계산 전)
+    safe_print(f"중복 제거 전 매물 수: {len(filtered_properties)}개")
+    # 도로명주소 기준으로 중복 제거 (첫 번째 항목만 유지)
+    filtered_properties = filtered_properties.drop_duplicates(subset=['도로명주소'], keep='first')
+    safe_print(f"중복 제거 후 매물 수: {len(filtered_properties)}개")
+
     safe_print("매물 평가 시작...")
 
-    # 필터링된 매물만 병렬 처리
+    # 중복 제거된 매물만 병렬 처리
     with ThreadPoolExecutor(max_workers=4) as executor:
         property_scores = []
         futures = [executor.submit(process_property, row) for _, row in filtered_properties.iterrows()]
@@ -605,51 +612,9 @@ CORS(app, resources={
 
 @app.route('/api/recommend', methods=['POST'])
 def recommend_properties():
-    """기존 하이브리드 추천 API - 메타모델로 리다이렉트"""
-    safe_print("API recommend request - redirecting to meta-model")
-
-    # 기존 요청을 메타모델 API로 리다이렉트
+    # 룰베이스 기반의 API를 메타모델 API로 리다이렉트
     return recommend_properties_with_meta()
 
-@app.route('/api/recommendations', methods=['POST'])
-def recommend_properties_alternative():
-    """프론트엔드 호환성을 위한 추가 엔드포인트"""
-    safe_print("API recommendations request - redirecting to meta-model")
-
-    try:
-        data = request.get_json()
-
-        # 프론트엔드 형식을 Flask 형식으로 변환
-        flask_data = {
-            'preferences': data.get('preferences', {}),
-            'maxDeposit': data.get('maxDeposit'),
-            'maxMonthly': data.get('maxMonthly'),
-            'preferredRegions': data.get('preferredRegions', []),  # 빈 배열로 기본값 설정
-            'topN': 5
-        }
-
-        # 임시로 request 데이터 교체
-        original_data = request.get_json
-        request.get_json = lambda: flask_data
-
-        # 메타모델 API 호출
-        response = recommend_properties_with_meta()
-
-        # 원래 request 복원
-        request.get_json = original_data
-
-        # 응답 형식을 프론트엔드가 기대하는 형식으로 변환
-        if hasattr(response, 'get_json'):
-            result = response.get_json()
-            return jsonify({
-                'properties': result.get('recommendedProperties', []) + result.get('premiumProperties', [])
-            })
-        else:
-            return response
-
-    except Exception as e:
-        safe_print(f"API recommendations error: {e}")
-        return jsonify({'properties': []}), 500
 
 @app.route('/api/recommend-meta', methods=['POST'])
 def recommend_properties_with_meta():
@@ -693,7 +658,7 @@ def recommend_properties_with_meta():
             top_n=top_n
         )
 
-        # 응답 데이터 구성 (기존 형식과 동일)
+        # 응답 데이터 구성
         response = {
             'recommendedProperties': recommendations['recommended'],
             'premiumProperties': recommendations['premium']
@@ -716,86 +681,7 @@ def recommend_properties_with_meta():
             pass
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/predict-meta', methods=['POST'])
-def predict_meta_score():
-    """정규화된 메타모델을 사용한 점수 예측 API"""
-    try:
-        safe_print("Meta prediction API request received")
-    except:
-        pass
-
-    if not request.is_json:
-        return jsonify({"error": "Content-Type must be application/json"}), 415
-
-    try:
-        data = request.get_json()
-
-        # 요청 데이터 확인
-        if 'latitude' not in data or 'longitude' not in data:
-            return jsonify({"error": "latitude and longitude are required"}), 400
-
-        lat = float(data['latitude'])
-        lng = float(data['longitude'])
-        user_preferences = data.get('preferences', None)  # 선호도는 선택사항
-
-        safe_print("="*50)
-        safe_print("Meta model prediction API request:")
-        safe_print(f"Coordinates: ({lat}, {lng})")
-        if user_preferences:
-            safe_print(f"User preferences: {user_preferences}")
-        safe_print("="*50)
-
-        # 예측기 가져오기
-        predictor_instance = get_predictor()
-
-        # 점수 예측
-        result = predictor_instance.predict_final_score(lat, lng, user_preferences)
-
-        # 응답 데이터 구성 (hybrid_recommendation_model.py 형식 참고)
-        response = {
-            'success': True,
-            'prediction': {
-                'final_score': round(result['final_score'], 3),
-                'individual_scores': {
-                    'transport': round(result['individual_scores']['transport'], 3),
-                    'environment': round(result['individual_scores']['environment'], 3),
-                    'complex': round(result['individual_scores']['complex'], 3),
-                    'living': round(result['individual_scores']['living'], 3)
-                },
-                'detail_scores': {
-                    # 룰베이스 7개 영역만 (육각형 차트용)
-                    **result['rule_based_scores']
-                },
-                'meta_features': {
-                    'rule_normalized': round(result['rule_normalized'], 3),
-                    'ml_score_variance': round(result['ml_score_variance'], 3)
-                },
-                'coordinates': {
-                    'latitude': lat,
-                    'longitude': lng
-                },
-                'user_preferences': user_preferences
-            }
-        }
-
-        safe_print("="*50)
-        safe_print("Meta model prediction API response:")
-        safe_print(f"Final score: {response['prediction']['final_score']}")
-        safe_print(f"Transport: {response['prediction']['individual_scores']['transport']}")
-        safe_print(f"Environment: {response['prediction']['individual_scores']['environment']}")
-        safe_print(f"Complex: {response['prediction']['individual_scores']['complex']}")
-        safe_print(f"Living: {response['prediction']['individual_scores']['living']}")
-        safe_print("="*50)
-
-        return jsonify(response)
-
-    except Exception as e:
-        try:
-            safe_print("Meta prediction error occurred:", str(e))
-        except:
-            pass
-        return jsonify({"error": str(e), "success": False}), 500
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    app.run(host='0.0.0.0', port=5001, debug=False)

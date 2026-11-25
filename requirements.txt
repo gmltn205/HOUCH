@@ -1,0 +1,12 @@
+Flask
+Flask-Cors
+joblib
+pandas
+numpy
+haversine
+pymongo
+geopy
+scikit-learn
+matplotlib
+seaborn
+xgboost==3.0.5
