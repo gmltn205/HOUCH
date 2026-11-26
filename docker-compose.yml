@@ -1,0 +1,67 @@
+services:
+  # 1. PostgreSQL - Spring Boot 데이터베이스
+  postgres:
+    image: postgres:16
+    container_name: houch-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: houch
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d houch"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 2. MongoDB - Flask AI 데이터베이스
+  mongo:
+    image: mongo:7
+    container_name: houch-mongo
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 3. Flask - AI 추천 서버
+  flask:
+    build:
+      context: ./pycharm
+      dockerfile: Dockerfile
+    container_name: houch-flask
+    restart: unless-stopped
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  # 4. Spring Boot - 메인 서버
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: houch-backend
+    restart: unless-stopped
+    ports:
+      - "80:8080"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/houch
+      DB_USERNAME: postgres
+      DB_PASSWORD: ${DB_PASSWORD}
+      FLASK_API_URL: http://flask:5001/api/recommend
+    depends_on:
+      postgres:
+        condition: service_healthy
+      flask:
+        condition: service_started
+
+volumes:
+  postgres_data:
+  mongo_data:
