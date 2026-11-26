@@ -8,6 +8,32 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+async function handleRecommendation() {
+    try {
+        const response = await fetch('/api/user/check-login', {
+            method: 'GET',
+            credentials: 'include'
+        });
+
+        if (response.status === 401) {
+            alert('로그인이 필요한 서비스입니다.\n회원가입 또는 로그인을 진행해주세요.');
+            location.href = '/register';
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error('로그인 상태 확인 실패');
+        }
+
+        // 로그인 상태라면 기존 추천 기능 실행
+        getRecommendations();
+
+    } catch (error) {
+        console.error(error);
+        alert('로그인 상태를 확인할 수 없습니다.');
+    }
+}
+
 function getRecommendations() {
     // 로딩 상태 표시 (선택사항)
     const resultsContainer = document.getElementById('results-container');

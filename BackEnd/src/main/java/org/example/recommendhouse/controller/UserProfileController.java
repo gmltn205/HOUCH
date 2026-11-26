@@ -2,7 +2,7 @@ package org.example.recommendhouse.controller;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.Logger;
+
 import org.example.recommendhouse.dto.UserProfileRequest;
 import org.example.recommendhouse.entity.User;
 import org.example.recommendhouse.entity.UserProfile;
@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
+import java.util.Map;
+
 @Slf4j  // 추가
 @RestController
 @RequestMapping("/api/user")
@@ -52,5 +55,23 @@ public class UserProfileController {
             log.error("Error saving profile", e);  // 에러 로그 추가
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @GetMapping("/check-login")
+    public ResponseEntity<?> checkLogin(HttpSession session) {
+
+        User user = (User) session.getAttribute("user");
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of(
+                            "isLoggedIn", false,
+                            "message", "로그인이 필요합니다."
+                    ));
+        }
+
+        return ResponseEntity.ok(
+                Map.of("isLoggedIn", true)
+        );
     }
 }

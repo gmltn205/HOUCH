@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="policy-thumbnail">
                                 ${slide.thumbnailUrl
                 ? `<img src="${slide.thumbnailUrl}" alt="${slide.title}">`
-                : '<div class="no-image">이미지 없음</div>'
+                : '<div class="no-image"></div>'
             }
                             </div>
                             
