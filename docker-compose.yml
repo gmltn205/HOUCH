@@ -31,6 +31,7 @@ services:
 
   # 3. Flask - AI 추천 서버
   flask:
+    image: houch-flask:latest
     build:
       context: ./PYCHARM
       dockerfile: Dockerfile
@@ -44,6 +45,7 @@ services:
 
   # 4. Spring Boot - 메인 서버
   BackEnd:
+    image: houch-backend:latest
     build:
       context: ./BackEnd
       dockerfile: Dockerfile
