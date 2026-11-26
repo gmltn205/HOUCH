@@ -56,7 +56,7 @@ function getRecommendations() {
     };
 
     // Spring Boot 서버로 요청
-    fetch("http://localhost:8080/api/recommendations", {
+    fetch("/api/recommendations", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
