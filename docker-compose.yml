@@ -32,7 +32,7 @@ services:
   # 3. Flask - AI 추천 서버
   flask:
     build:
-      context: ./pycharm
+      context: ./PYCHARM
       dockerfile: Dockerfile
     container_name: houch-flask
     restart: unless-stopped
@@ -43,9 +43,9 @@ services:
         condition: service_healthy
 
   # 4. Spring Boot - 메인 서버
-  backend:
+  BackEnd:
     build:
-      context: ./backend
+      context: ./BackEnd
       dockerfile: Dockerfile
     container_name: houch-backend
     restart: unless-stopped
